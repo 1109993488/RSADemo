@@ -2,8 +2,6 @@ package com.example;
 
 
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 
 public class MyClass {
 
@@ -21,13 +19,10 @@ public class MyClass {
      * PublicKey加密，PrivateKey解密
      */
     private static void test1() throws Exception {
-        byte[] data = DATA.getBytes("utf-8");
-        PublicKey publicKey = RSAUtils.getPublicKey(Base64.decode(PUBLIC_KEY));
-        PrivateKey privateKey = RSAUtils.getPrivateKey(Base64.decode(PRIVATE_KEY));
-        byte[] encryptBytes = RSAUtils.encryptByPublicKey(data, publicKey);
-        print("公钥加密后的数据为", Base64.encode(encryptBytes));
-        byte[] decryptDataBytes = RSAUtils.decryptByPrivateKey(encryptBytes, privateKey);
-        print("私钥解密后的数据为", new String(decryptDataBytes, "utf-8"));
+        String encryptData = RSAUtils.encryptByPublicKey(DATA, PUBLIC_KEY);
+        print("公钥加密后的数据为:", encryptData);
+        String decryptData = RSAUtils.decryptByPrivateKey(encryptData, PRIVATE_KEY);
+        print("私钥解密后的数据为:", decryptData);
 
     }
 
@@ -35,39 +30,32 @@ public class MyClass {
      * PrivateKey加密，PublicKey解密
      */
     private static void test2() throws Exception {
-        byte[] data = DATA.getBytes("utf-8");
-        PublicKey publicKey = RSAUtils.getPublicKey(Base64.decode(PUBLIC_KEY));
-        PrivateKey privateKey = RSAUtils.getPrivateKey(Base64.decode(PRIVATE_KEY));
-        byte[] encryptBytes = RSAUtils.encryptByPrivateKey(data, privateKey);
-        print("私钥加密后的数据为", Base64.encode(encryptBytes));
-        byte[] decryptDataBytes = RSAUtils.decryptByPublicKey(encryptBytes, publicKey);
-        print("公钥解密后的数据为", new String(decryptDataBytes, "utf-8"));
-
+        String encryptData = RSAUtils.encryptByPrivateKey(DATA, PRIVATE_KEY);
+        print("私钥加密后的数据为:", encryptData);
+        String decryptData = RSAUtils.decryptByPublicKey(encryptData, PUBLIC_KEY);
+        print("公钥解密后的数据为:", decryptData);
 
         print("------------------------------------");
         print("私钥签名——公钥验证签名");
 
-        byte[] signBytes = RSAUtils.sign(encryptBytes, privateKey);
-        String sign = Base64.encode(signBytes);
-        boolean status = RSAUtils.verify(encryptBytes, publicKey, signBytes);
-        print("私钥加密的签名", sign);
-        print("公钥验证签名", "结果为:" + status);
+        String sign = RSAUtils.sign(DATA, PRIVATE_KEY);
+        boolean status = RSAUtils.verify(DATA, PUBLIC_KEY, sign);
+        print("私钥加密的签名:", sign);
+        print("公钥验证签名:", "结果为:" + status);
     }
 
     private static void test3() throws Exception {
-        String appPublicKeyEncryptData = "IVcu0+pC7WBbCSmhGOD41FREIZPyfLAkKTYO3FQm6iXaP+m17FJMoxECnGURfye31zbF8SYThtjCeHZYWK4aY3PY8cqX8nK6inw16Lymnd4DDfhwt2/66a/38u8h6vh7w7gxrfk4QwqU4cZ74hlftRDNwFk5B06jQWRCRW3upmc=";
-        String appPrivateKeyEncryptData = "eILmLJZLb9luxTAE+vQ/2iQpYg/UWEoB7cLrLZb9i40kpxT5ky7gi/vF3Vd5Fj2WgAWwA8eBkpffgeDupBu5RukhvO1lEbvdQH09luA9ejCFFcRoAmSYFYc/xBtHhpLXXwH2PGbL6bk2ugyiBbSsYJEm6BT2dD6pNvVrA0VJLzI=";
+        print("解密客户端加密的数据");
+        String serverPublicKeyEncryptData = "g1/Rm7iDTcEhV0tsKiVZ4AElmbhlXpU9O7CGmywBEtW2HRGa3wnxSIOc2k++t6VHiGcanpo7iCdioJJVDBjz2IyFbLgrYnFlfCb1HagNKqFkz6/wvo/e9rfEPCnRiIcSxvdz1Qbq7Yx9rvVPCWcEiAyLpy3MxmfmhF+cBtWqusA=";
+        String serverPrivateKeyEncryptData = "eILmLJZLb9luxTAE+vQ/2iQpYg/UWEoB7cLrLZb9i40kpxT5ky7gi/vF3Vd5Fj2WgAWwA8eBkpffgeDupBu5RukhvO1lEbvdQH09luA9ejCFFcRoAmSYFYc/xBtHhpLXXwH2PGbL6bk2ugyiBbSsYJEm6BT2dD6pNvVrA0VJLzI=";
 
-        PublicKey publicKey = RSAUtils.getPublicKey(Base64.decode(PUBLIC_KEY));
-        PrivateKey privateKey = RSAUtils.getPrivateKey(Base64.decode(PRIVATE_KEY));
-
-        byte[] decryptDataBytesByPrivateKey = RSAUtils.decryptByPrivateKey(Base64.decode(appPublicKeyEncryptData), privateKey);
-        print("私钥解密后的数据为", new String(decryptDataBytesByPrivateKey, "utf-8"));
+        String decryptDataByPrivateKey = RSAUtils.decryptByPrivateKey(serverPublicKeyEncryptData, PRIVATE_KEY);
+        print("私钥解密后的数据为:", decryptDataByPrivateKey);
 
         print("------------------------------------");
 
-        byte[] decryptDataBytesByPublicKey = RSAUtils.decryptByPublicKey(Base64.decode(appPrivateKeyEncryptData), publicKey);
-        print("公钥解密后的数据为", new String(decryptDataBytesByPublicKey, "utf-8"));
+        String decryptDataByPublicKey = RSAUtils.decryptByPublicKey(serverPrivateKeyEncryptData, PUBLIC_KEY);
+        print("公钥解密后的数据为:", decryptDataByPublicKey);
     }
 
     private static void print(String string) {

@@ -30,6 +30,7 @@ public class RSAUtils {
     public static final String SIGNATURE_ALGORITHM = "MD5withRSA";
 
 
+    private static final String CHARSET_NAME = "UTF-8";
     /**
      * RSA最大加密明文大小
      */
@@ -39,6 +40,159 @@ public class RSAUtils {
      * RSA最大解密密文大小
      */
     private static final int MAX_DECRYPT_BLOCK = 128;
+
+
+    //************************************提供方便调用的一些方法****************************************
+
+    /**
+     * Base64编码数据
+     *
+     * @param binaryData
+     * @return
+     */
+    public static String encode(byte[] binaryData) {
+        return Base64.encode(binaryData);
+    }
+
+    /**
+     * Base64解码数据
+     *
+     * @param encoded (BASE64编码)
+     * @return
+     */
+    public static byte[] decode(String encoded) {
+        return Base64.decode(encoded);
+    }
+
+    /**
+     * 用私钥对信息生成数字签名
+     *
+     * @param data       数据
+     * @param privateKey 私钥(BASE64编码)
+     * @return
+     */
+    public static String sign(String data, String privateKey) {
+        String sign = null;
+        try {
+            byte[] dataBytes = data.getBytes(CHARSET_NAME);
+            PrivateKey key = getPrivateKey(decode(privateKey));
+
+            byte[] signBytes = sign(dataBytes, key);
+            sign = encode(signBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sign;
+    }
+
+    /**
+     * 校验数字签名
+     *
+     * @param data      数据
+     * @param publicKey 公钥(BASE64编码)
+     * @param sign      数字签名(BASE64编码)
+     * @return
+     */
+    public static boolean verify(String data, String publicKey, String sign) {
+        boolean verify = false;
+        try {
+            byte[] dataBytes = data.getBytes(CHARSET_NAME);
+            PublicKey key = getPublicKey(decode(publicKey));
+            byte[] signBytes = decode(sign);
+
+            Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
+            signature.initVerify(key);
+            signature.update(dataBytes);
+            verify = signature.verify(signBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return verify;
+    }
+
+    /**
+     * 公钥加密
+     *
+     * @param data      源数据
+     * @param publicKey 公钥(BASE64编码)
+     * @return BASE64编码的加密数据
+     */
+    public static String encryptByPublicKey(String data, String publicKey) {
+        String encryptData = null;
+        try {
+            byte[] dataBytes = data.getBytes(CHARSET_NAME);
+            PublicKey key = getPublicKey(decode(publicKey));
+
+            byte[] encryptDataBytes = encryptByPublicKey(dataBytes, key);
+            encryptData = encode(encryptDataBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return encryptData;
+    }
+
+    /**
+     * 私钥加密
+     *
+     * @param data       源数据
+     * @param privateKey 私钥(BASE64编码)
+     * @return BASE64编码的加密数据
+     */
+    public static String encryptByPrivateKey(String data, String privateKey) {
+        String encryptData = null;
+        try {
+            byte[] dataBytes = data.getBytes(CHARSET_NAME);
+            PrivateKey key = getPrivateKey(decode(privateKey));
+
+            byte[] encryptDataBytes = encryptByPrivateKey(dataBytes, key);
+            encryptData = encode(encryptDataBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return encryptData;
+    }
+
+    /**
+     * 公钥解密
+     *
+     * @param encryptedData 私钥加密的数据(BASE64编码)
+     * @param publicKey     公钥(BASE64编码)
+     * @return 私钥加密前的数据
+     */
+    public static String decryptByPublicKey(String encryptedData, String publicKey) {
+        String data = null;
+        try {
+            byte[] dataBytes = decode(encryptedData);
+            PublicKey key = getPublicKey(decode(publicKey));
+
+            byte[] decryptDataBytes = decryptByPublicKey(dataBytes, key);
+            data = new String(decryptDataBytes, CHARSET_NAME);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    /**
+     * 私钥解密
+     *
+     * @param encryptedData 公钥加密的数据(BASE64编码)
+     * @param privateKey    私钥(BASE64编码)
+     * @return 公钥加密前的数据
+     */
+    public static String decryptByPrivateKey(String encryptedData, String privateKey) {
+        String data = null;
+        try {
+            byte[] dataBytes = decode(encryptedData);
+            PrivateKey key = getPrivateKey(decode(privateKey));
+
+            byte[] decryptDataBytes = decryptByPrivateKey(dataBytes, key);
+            data = new String(decryptDataBytes, CHARSET_NAME);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
 
     /**
      * 生成RSA密钥对(默认密钥长度为1024)
@@ -64,13 +218,15 @@ public class RSAUtils {
         return keyPair;
     }
 
-    public static PrivateKey getPrivateKey(byte[] keyBytes) throws Exception {
-        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
-        return privateKey;
-    }
+    //**************************************提供一些基础操作********************************************
 
+    /**
+     * 获取公钥
+     *
+     * @param keyBytes
+     * @return
+     * @throws Exception
+     */
     public static PublicKey getPublicKey(byte[] keyBytes) throws Exception {
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
@@ -78,11 +234,24 @@ public class RSAUtils {
         return publicKey;
     }
 
+    /**
+     * 获取私钥
+     *
+     * @param keyBytes
+     * @return
+     * @throws Exception
+     */
+    public static PrivateKey getPrivateKey(byte[] keyBytes) throws Exception {
+        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+        return privateKey;
+    }
 
     /**
      * 用私钥对信息生成数字签名
      *
-     * @param data       已加密数据
+     * @param data       数据
      * @param privateKey 私钥
      * @return
      * @throws Exception
@@ -111,9 +280,7 @@ public class RSAUtils {
     }
 
     /**
-     * <p>
      * 公钥加密
-     * </p>
      *
      * @param data      源数据
      * @param publicKey 公钥
@@ -196,50 +363,9 @@ public class RSAUtils {
     }
 
     /**
-     * 私钥解密
-     *
-     * @param encryptedData 已加密数据
-     * @param privateKey    私钥
-     * @return
-     * @throws Exception
-     */
-    public static byte[] decryptByPrivateKey(byte[] encryptedData, PrivateKey privateKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(KEY_CIPHER);
-        cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        byte[] decryptedData = null;
-        ByteArrayOutputStream out = null;
-        try {
-            out = new ByteArrayOutputStream();
-            int offSet = 0;
-            byte[] cache;
-            int i = 0;
-            int inputLen = encryptedData.length;
-            // 对数据分段解密
-            while (inputLen - offSet > 0) {
-                if (inputLen - offSet > MAX_DECRYPT_BLOCK) {
-                    cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
-                } else {
-                    cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
-                }
-                out.write(cache, 0, cache.length);
-                i++;
-                offSet = i * MAX_DECRYPT_BLOCK;
-            }
-            decryptedData = out.toByteArray();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (Exception e) {}
-            }
-        }
-        return decryptedData;
-    }
-
-    /**
      * 公钥解密
      *
-     * @param encryptedData 已加密数据
+     * @param encryptedData 公钥加密的数据
      * @param publicKey     公钥
      * @return
      * @throws Exception
@@ -277,4 +403,44 @@ public class RSAUtils {
         return decryptedData;
     }
 
+    /**
+     * 私钥解密
+     *
+     * @param encryptedData 公钥加密的数据
+     * @param privateKey    私钥
+     * @return
+     * @throws Exception
+     */
+    public static byte[] decryptByPrivateKey(byte[] encryptedData, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance(KEY_CIPHER);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedData = null;
+        ByteArrayOutputStream out = null;
+        try {
+            out = new ByteArrayOutputStream();
+            int offSet = 0;
+            byte[] cache;
+            int i = 0;
+            int inputLen = encryptedData.length;
+            // 对数据分段解密
+            while (inputLen - offSet > 0) {
+                if (inputLen - offSet > MAX_DECRYPT_BLOCK) {
+                    cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
+                } else {
+                    cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
+                }
+                out.write(cache, 0, cache.length);
+                i++;
+                offSet = i * MAX_DECRYPT_BLOCK;
+            }
+            decryptedData = out.toByteArray();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception e) {}
+            }
+        }
+        return decryptedData;
+    }
 }
