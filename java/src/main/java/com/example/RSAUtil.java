@@ -20,10 +20,11 @@ public class RSAUtil {
 
     private RSAUtil() {}
 
+    private static final String RSA_ALGORITHM = "RSA";
     /**
      * 加密算法RSA
      */
-    private static final String RSA_ALGORITHM = "RSA/ECB/PKCS1Padding";
+    private static final String CIPHER_ALGORITHM = "RSA/ECB/PKCS1Padding";
 
     /**
      * 签名算法
@@ -203,8 +204,8 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static KeyPair genKeyPair() throws Exception {
-        return genKeyPair(1024);
+    public static KeyPair initKeyPair() throws Exception {
+        return initKeyPair(1024);
     }
 
     /**
@@ -214,8 +215,8 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static KeyPair genKeyPair(int length) throws Exception {
-        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+    public static KeyPair initKeyPair(int length) throws Exception {
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(RSA_ALGORITHM);
         keyPairGen.initialize(length);
         KeyPair keyPair = keyPairGen.generateKeyPair();
         return keyPair;
@@ -232,7 +233,7 @@ public class RSAUtil {
      */
     public static PublicKey getPublicKey(byte[] keyBytes) throws Exception {
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
         PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
         return publicKey;
     }
@@ -246,7 +247,7 @@ public class RSAUtil {
      */
     public static PrivateKey getPrivateKey(byte[] keyBytes) throws Exception {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
         PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
         return privateKey;
     }
@@ -291,7 +292,7 @@ public class RSAUtil {
      * @throws Exception
      */
     public static byte[] encryptByPublicKey(byte[] data, PublicKey publicKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedData = null;
         ByteArrayOutputStream out = null;
@@ -332,7 +333,7 @@ public class RSAUtil {
      * @throws Exception
      */
     public static byte[] encryptByPrivateKey(byte[] data, PrivateKey privateKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, privateKey);
         byte[] encryptedData = null;
         ByteArrayOutputStream out = null;
@@ -374,7 +375,7 @@ public class RSAUtil {
      * @throws Exception
      */
     public static byte[] decryptByPublicKey(byte[] encryptedData, PublicKey publicKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, publicKey);
         byte[] decryptedData = null;
         ByteArrayOutputStream out = null;
@@ -415,7 +416,7 @@ public class RSAUtil {
      * @throws Exception
      */
     public static byte[] decryptByPrivateKey(byte[] encryptedData, PrivateKey privateKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] decryptedData = null;
         ByteArrayOutputStream out = null;

@@ -63,10 +63,11 @@ public class MyClass {
     }
 
     private static void test4() {
-        String AES_PASSWORD = "AES_PASSWORD";
-        String encrypt = AESUtil.encryptToString(DATA, AES_PASSWORD);
+        String key = AESUtil.initKeyToString("pass");
+        print("AES加密密钥为", key);
+        String encrypt = AESUtil.encrypt(DATA, key);
         print("AES加密后的数据为", encrypt);
-        String decrypt = AESUtil.decryptByString(encrypt, AES_PASSWORD);
+        String decrypt = AESUtil.decrypt(encrypt, key);
         print("AES解密后的数据为", decrypt);
     }
 
@@ -86,7 +87,7 @@ public class MyClass {
 
 
     private static void initKey() throws Exception {
-        KeyPair keyPair = RSAUtil.genKeyPair();
+        KeyPair keyPair = RSAUtil.initKeyPair();
         String privateKey = Base64Util.encode(keyPair.getPrivate().getEncoded());
         String publicKey = Base64Util.encode(keyPair.getPublic().getEncoded());
         System.out.println("PrivateKey-> " + privateKey);

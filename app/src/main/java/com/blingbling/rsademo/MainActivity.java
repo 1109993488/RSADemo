@@ -84,10 +84,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static void test4() {
-        String AES_PASSWORD = "AES_PASSWORD";
-        String encrypt = AESUtil.encryptToString(DATA, AES_PASSWORD);
+        String key = AESUtil.initKeyToString("pass");
+        print("AES加密密钥为", key);
+        String encrypt = AESUtil.encrypt(DATA, key);
         print("AES加密后的数据为", encrypt);
-        String decrypt = AESUtil.decryptByString(encrypt, AES_PASSWORD);
+        String decrypt = AESUtil.decrypt(encrypt, key);
         print("AES解密后的数据为", decrypt);
     }
 
