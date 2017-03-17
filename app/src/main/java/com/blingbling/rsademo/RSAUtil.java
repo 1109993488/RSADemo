@@ -16,21 +16,25 @@ import javax.crypto.Cipher;
  * Created by BlingBling on 2017/3/16.
  */
 
-public class RSAUtils {
+public class RSAUtil {
+
+    private RSAUtil() {}
 
     /**
      * 加密算法RSA
      */
-    public static final String KEY_ALGORITHM = "RSA";
-    public static final String KEY_CIPHER = "RSA/ECB/PKCS1Padding";
+    private static final String RSA_ALGORITHM = "RSA/ECB/PKCS1Padding";
 
     /**
      * 签名算法
      */
-    public static final String SIGNATURE_ALGORITHM = "MD5withRSA";
+    private static final String SIGNATURE_ALGORITHM = "MD5withRSA";
 
+    /**
+     * 编码
+     */
+    private static final String CHAR_ENCODING = "UTF-8";
 
-    private static final String CHARSET_NAME = "UTF-8";
     /**
      * RSA最大加密明文大小
      */
@@ -41,7 +45,6 @@ public class RSAUtils {
      */
     private static final int MAX_DECRYPT_BLOCK = 128;
 
-
     //************************************提供方便调用的一些方法****************************************
 
     /**
@@ -51,7 +54,7 @@ public class RSAUtils {
      * @return
      */
     public static String encode(byte[] binaryData) {
-        return Base64.encode(binaryData);
+        return Base64Util.encode(binaryData);
     }
 
     /**
@@ -61,7 +64,7 @@ public class RSAUtils {
      * @return
      */
     public static byte[] decode(String encoded) {
-        return Base64.decode(encoded);
+        return Base64Util.decode(encoded);
     }
 
     /**
@@ -74,7 +77,7 @@ public class RSAUtils {
     public static String sign(String data, String privateKey) {
         String sign = null;
         try {
-            byte[] dataBytes = data.getBytes(CHARSET_NAME);
+            byte[] dataBytes = data.getBytes(CHAR_ENCODING);
             PrivateKey key = getPrivateKey(decode(privateKey));
 
             byte[] signBytes = sign(dataBytes, key);
@@ -96,7 +99,7 @@ public class RSAUtils {
     public static boolean verify(String data, String publicKey, String sign) {
         boolean verify = false;
         try {
-            byte[] dataBytes = data.getBytes(CHARSET_NAME);
+            byte[] dataBytes = data.getBytes(CHAR_ENCODING);
             PublicKey key = getPublicKey(decode(publicKey));
             byte[] signBytes = decode(sign);
 
@@ -120,7 +123,7 @@ public class RSAUtils {
     public static String encryptByPublicKey(String data, String publicKey) {
         String encryptData = null;
         try {
-            byte[] dataBytes = data.getBytes(CHARSET_NAME);
+            byte[] dataBytes = data.getBytes(CHAR_ENCODING);
             PublicKey key = getPublicKey(decode(publicKey));
 
             byte[] encryptDataBytes = encryptByPublicKey(dataBytes, key);
@@ -141,7 +144,7 @@ public class RSAUtils {
     public static String encryptByPrivateKey(String data, String privateKey) {
         String encryptData = null;
         try {
-            byte[] dataBytes = data.getBytes(CHARSET_NAME);
+            byte[] dataBytes = data.getBytes(CHAR_ENCODING);
             PrivateKey key = getPrivateKey(decode(privateKey));
 
             byte[] encryptDataBytes = encryptByPrivateKey(dataBytes, key);
@@ -166,7 +169,7 @@ public class RSAUtils {
             PublicKey key = getPublicKey(decode(publicKey));
 
             byte[] decryptDataBytes = decryptByPublicKey(dataBytes, key);
-            data = new String(decryptDataBytes, CHARSET_NAME);
+            data = new String(decryptDataBytes, CHAR_ENCODING);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -187,7 +190,7 @@ public class RSAUtils {
             PrivateKey key = getPrivateKey(decode(privateKey));
 
             byte[] decryptDataBytes = decryptByPrivateKey(dataBytes, key);
-            data = new String(decryptDataBytes, CHARSET_NAME);
+            data = new String(decryptDataBytes, CHAR_ENCODING);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -212,7 +215,7 @@ public class RSAUtils {
      * @throws Exception
      */
     public static KeyPair genKeyPair(int length) throws Exception {
-        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
         keyPairGen.initialize(length);
         KeyPair keyPair = keyPairGen.generateKeyPair();
         return keyPair;
@@ -229,7 +232,7 @@ public class RSAUtils {
      */
     public static PublicKey getPublicKey(byte[] keyBytes) throws Exception {
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
         return publicKey;
     }
@@ -243,7 +246,7 @@ public class RSAUtils {
      */
     public static PrivateKey getPrivateKey(byte[] keyBytes) throws Exception {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
         return privateKey;
     }
@@ -288,7 +291,7 @@ public class RSAUtils {
      * @throws Exception
      */
     public static byte[] encryptByPublicKey(byte[] data, PublicKey publicKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(KEY_CIPHER);
+        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedData = null;
         ByteArrayOutputStream out = null;
@@ -329,7 +332,7 @@ public class RSAUtils {
      * @throws Exception
      */
     public static byte[] encryptByPrivateKey(byte[] data, PrivateKey privateKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(KEY_CIPHER);
+        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, privateKey);
         byte[] encryptedData = null;
         ByteArrayOutputStream out = null;
@@ -371,7 +374,7 @@ public class RSAUtils {
      * @throws Exception
      */
     public static byte[] decryptByPublicKey(byte[] encryptedData, PublicKey publicKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(KEY_CIPHER);
+        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, publicKey);
         byte[] decryptedData = null;
         ByteArrayOutputStream out = null;
@@ -412,7 +415,7 @@ public class RSAUtils {
      * @throws Exception
      */
     public static byte[] decryptByPrivateKey(byte[] encryptedData, PrivateKey privateKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(KEY_CIPHER);
+        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] decryptedData = null;
         ByteArrayOutputStream out = null;

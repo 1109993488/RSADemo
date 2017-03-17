@@ -2,7 +2,7 @@ package com.blingbling.rsademo;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.util.*;
 import android.view.View;
 
 /**
@@ -31,6 +31,10 @@ public class MainActivity extends AppCompatActivity {
             test2();
             print("------------------------------------");
             test3();
+            print("------------------------------------");
+            test4();
+            print("------------------------------------");
+            print("MD5加密为", MD5Util.digest(DATA));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
      * PublicKey加密，PrivateKey解密
      */
     private static void test1() throws Exception {
-        String encryptData = RSAUtils.encryptByPublicKey(DATA, PUBLIC_KEY);
+        String encryptData = RSAUtil.encryptByPublicKey(DATA, PUBLIC_KEY);
         print("公钥加密后的数据为:", encryptData);
-        String decryptData = RSAUtils.decryptByPrivateKey(encryptData, PRIVATE_KEY);
+        String decryptData = RSAUtil.decryptByPrivateKey(encryptData, PRIVATE_KEY);
         print("私钥解密后的数据为:", decryptData);
 
     }
@@ -51,16 +55,16 @@ public class MainActivity extends AppCompatActivity {
      * PrivateKey加密，PublicKey解密
      */
     private static void test2() throws Exception {
-        String encryptData = RSAUtils.encryptByPrivateKey(DATA, PRIVATE_KEY);
+        String encryptData = RSAUtil.encryptByPrivateKey(DATA, PRIVATE_KEY);
         print("私钥加密后的数据为:", encryptData);
-        String decryptData = RSAUtils.decryptByPublicKey(encryptData, PUBLIC_KEY);
+        String decryptData = RSAUtil.decryptByPublicKey(encryptData, PUBLIC_KEY);
         print("公钥解密后的数据为:", decryptData);
 
         print("------------------------------------");
         print("私钥签名——公钥验证签名");
 
-        String sign = RSAUtils.sign(DATA, PRIVATE_KEY);
-        boolean status = RSAUtils.verify(DATA, PUBLIC_KEY, sign);
+        String sign = RSAUtil.sign(DATA, PRIVATE_KEY);
+        boolean status = RSAUtil.verify(DATA, PUBLIC_KEY, sign);
         print("私钥加密的签名:", sign);
         print("公钥验证签名:", "结果为:" + status);
     }
@@ -70,13 +74,21 @@ public class MainActivity extends AppCompatActivity {
         String serverPublicKeyEncryptData = "g1/Rm7iDTcEhV0tsKiVZ4AElmbhlXpU9O7CGmywBEtW2HRGa3wnxSIOc2k++t6VHiGcanpo7iCdioJJVDBjz2IyFbLgrYnFlfCb1HagNKqFkz6/wvo/e9rfEPCnRiIcSxvdz1Qbq7Yx9rvVPCWcEiAyLpy3MxmfmhF+cBtWqusA=";
         String serverPrivateKeyEncryptData = "eILmLJZLb9luxTAE+vQ/2iQpYg/UWEoB7cLrLZb9i40kpxT5ky7gi/vF3Vd5Fj2WgAWwA8eBkpffgeDupBu5RukhvO1lEbvdQH09luA9ejCFFcRoAmSYFYc/xBtHhpLXXwH2PGbL6bk2ugyiBbSsYJEm6BT2dD6pNvVrA0VJLzI=";
 
-        String decryptDataByPrivateKey = RSAUtils.decryptByPrivateKey(serverPublicKeyEncryptData, PRIVATE_KEY);
+        String decryptDataByPrivateKey = RSAUtil.decryptByPrivateKey(serverPublicKeyEncryptData, PRIVATE_KEY);
         print("私钥解密后的数据为:", decryptDataByPrivateKey);
 
         print("------------------------------------");
 
-        String decryptDataByPublicKey = RSAUtils.decryptByPublicKey(serverPrivateKeyEncryptData, PUBLIC_KEY);
+        String decryptDataByPublicKey = RSAUtil.decryptByPublicKey(serverPrivateKeyEncryptData, PUBLIC_KEY);
         print("公钥解密后的数据为:", decryptDataByPublicKey);
+    }
+
+    private static void test4() {
+        String AES_PASSWORD = "AES_PASSWORD";
+        String encrypt = AESUtil.encryptToString(DATA, AES_PASSWORD);
+        print("AES加密后的数据为", encrypt);
+        String decrypt = AESUtil.decryptByString(encrypt, AES_PASSWORD);
+        print("AES解密后的数据为", decrypt);
     }
 
     private static void print(String string) {
