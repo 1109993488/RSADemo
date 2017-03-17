@@ -14,10 +14,10 @@ import javax.crypto.spec.SecretKeySpec;
 public class AESUtil {
     private AESUtil() {}
 
-    public static final String SECRETKEYSPEC_ALGORITHM = "SECRETKEYSPEC_ALGORITHM";
+    public static final String SECRETKEYSPEC_ALGORITHM = "AES";
     public static final String SECURERANDOM_SHA1 = "SHA1PRNG";
     public static final String SECURERANDOM_CRYPTO = "Crypto";
-    public static final String CIPHER_ALGORITHM = "SECRETKEYSPEC_ALGORITHM/ECB/PKCS5Padding";
+    public static final String CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
     /**
      * 编码
      */
