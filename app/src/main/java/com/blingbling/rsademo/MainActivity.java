@@ -2,8 +2,12 @@ package com.blingbling.rsademo;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.*;
+import android.util.Log;
 import android.view.View;
+
+import com.example.utils.AESUtil;
+import com.example.utils.MD5Util;
+import com.example.utils.RSAUtil;
 
 /**
  * Created by BlingBling on 2017/3/16.
@@ -84,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static void test4() {
-        String key = AESUtil.initKeyToString("pass");
+        String key = AESUtil.initKeyToString();
         print("AES加密密钥为", key);
         String encrypt = AESUtil.encrypt(DATA, key);
         print("AES加密后的数据为", encrypt);

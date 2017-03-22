@@ -1,4 +1,4 @@
-package com.blingbling.rsademo;
+package com.example.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.security.KeyFactory;
@@ -54,8 +54,8 @@ public class RSAUtil {
      * @param binaryData
      * @return
      */
-    public static String encode(byte[] binaryData) {
-        return Base64Util.encode(binaryData);
+    private static String encode(byte[] binaryData) {
+        return BASE64Util.encode(binaryData);
     }
 
     /**
@@ -64,8 +64,37 @@ public class RSAUtil {
      * @param encoded (BASE64编码)
      * @return
      */
-    public static byte[] decode(String encoded) {
-        return Base64Util.decode(encoded);
+    private static byte[] decode(String encoded) {
+        return BASE64Util.decode(encoded);
+    }
+
+    /**
+     * 生成RSA密钥对(默认密钥长度为1024)
+     *
+     * @return
+     * @throws Exception
+     */
+    public static KeyPair initKeyPair() {
+        return initKeyPair(1024);
+    }
+
+    /**
+     * 生成RSA密钥对
+     *
+     * @param length 密钥长度，范围：512～2048
+     * @return
+     * @throws Exception
+     */
+    public static KeyPair initKeyPair(int length) {
+        KeyPair keyPair = null;
+        try {
+            final KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(RSA_ALGORITHM);
+            keyPairGen.initialize(length);
+            keyPair = keyPairGen.generateKeyPair();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return keyPair;
     }
 
     /**
@@ -78,10 +107,10 @@ public class RSAUtil {
     public static String sign(String data, String privateKey) {
         String sign = null;
         try {
-            byte[] dataBytes = data.getBytes(CHAR_ENCODING);
-            PrivateKey key = getPrivateKey(decode(privateKey));
+            final byte[] dataBytes = data.getBytes(CHAR_ENCODING);
+            final PrivateKey key = getPrivateKey(decode(privateKey));
 
-            byte[] signBytes = sign(dataBytes, key);
+            final byte[] signBytes = sign(dataBytes, key);
             sign = encode(signBytes);
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,11 +129,11 @@ public class RSAUtil {
     public static boolean verify(String data, String publicKey, String sign) {
         boolean verify = false;
         try {
-            byte[] dataBytes = data.getBytes(CHAR_ENCODING);
-            PublicKey key = getPublicKey(decode(publicKey));
-            byte[] signBytes = decode(sign);
+            final byte[] dataBytes = data.getBytes(CHAR_ENCODING);
+            final PublicKey key = getPublicKey(decode(publicKey));
+            final byte[] signBytes = decode(sign);
 
-            Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
+            final Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
             signature.initVerify(key);
             signature.update(dataBytes);
             verify = signature.verify(signBytes);
@@ -124,10 +153,10 @@ public class RSAUtil {
     public static String encryptByPublicKey(String data, String publicKey) {
         String encryptData = null;
         try {
-            byte[] dataBytes = data.getBytes(CHAR_ENCODING);
+            final byte[] dataBytes = data.getBytes(CHAR_ENCODING);
             PublicKey key = getPublicKey(decode(publicKey));
 
-            byte[] encryptDataBytes = encryptByPublicKey(dataBytes, key);
+            final byte[] encryptDataBytes = encryptByPublicKey(dataBytes, key);
             encryptData = encode(encryptDataBytes);
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,10 +174,10 @@ public class RSAUtil {
     public static String encryptByPrivateKey(String data, String privateKey) {
         String encryptData = null;
         try {
-            byte[] dataBytes = data.getBytes(CHAR_ENCODING);
+            final byte[] dataBytes = data.getBytes(CHAR_ENCODING);
             PrivateKey key = getPrivateKey(decode(privateKey));
 
-            byte[] encryptDataBytes = encryptByPrivateKey(dataBytes, key);
+            final byte[] encryptDataBytes = encryptByPrivateKey(dataBytes, key);
             encryptData = encode(encryptDataBytes);
         } catch (Exception e) {
             e.printStackTrace();
@@ -166,10 +195,10 @@ public class RSAUtil {
     public static String decryptByPublicKey(String encryptedData, String publicKey) {
         String data = null;
         try {
-            byte[] dataBytes = decode(encryptedData);
+            final byte[] dataBytes = decode(encryptedData);
             PublicKey key = getPublicKey(decode(publicKey));
 
-            byte[] decryptDataBytes = decryptByPublicKey(dataBytes, key);
+            final byte[] decryptDataBytes = decryptByPublicKey(dataBytes, key);
             data = new String(decryptDataBytes, CHAR_ENCODING);
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,39 +216,15 @@ public class RSAUtil {
     public static String decryptByPrivateKey(String encryptedData, String privateKey) {
         String data = null;
         try {
-            byte[] dataBytes = decode(encryptedData);
+            final byte[] dataBytes = decode(encryptedData);
             PrivateKey key = getPrivateKey(decode(privateKey));
 
-            byte[] decryptDataBytes = decryptByPrivateKey(dataBytes, key);
+            final byte[] decryptDataBytes = decryptByPrivateKey(dataBytes, key);
             data = new String(decryptDataBytes, CHAR_ENCODING);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return data;
-    }
-
-    /**
-     * 生成RSA密钥对(默认密钥长度为1024)
-     *
-     * @return
-     * @throws Exception
-     */
-    public static KeyPair initKeyPair() throws Exception {
-        return initKeyPair(1024);
-    }
-
-    /**
-     * 生成RSA密钥对
-     *
-     * @param length 密钥长度，范围：512～2048
-     * @return
-     * @throws Exception
-     */
-    public static KeyPair initKeyPair(int length) throws Exception {
-        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(RSA_ALGORITHM);
-        keyPairGen.initialize(length);
-        KeyPair keyPair = keyPairGen.generateKeyPair();
-        return keyPair;
     }
 
     //**************************************提供一些基础操作********************************************
@@ -231,10 +236,10 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static PublicKey getPublicKey(byte[] keyBytes) throws Exception {
-        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
-        PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
+    private static PublicKey getPublicKey(byte[] keyBytes) throws Exception {
+        final X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(keyBytes);
+        final KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
+        final PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
         return publicKey;
     }
 
@@ -245,10 +250,10 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static PrivateKey getPrivateKey(byte[] keyBytes) throws Exception {
-        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
-        PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+    private static PrivateKey getPrivateKey(byte[] keyBytes) throws Exception {
+        final PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(keyBytes);
+        final KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
+        final PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
         return privateKey;
     }
 
@@ -260,8 +265,8 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static byte[] sign(byte[] data, PrivateKey privateKey) throws Exception {
-        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
+    private static byte[] sign(byte[] data, PrivateKey privateKey) throws Exception {
+        final Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
         signature.initSign(privateKey);
         signature.update(data);
         return signature.sign();
@@ -276,8 +281,8 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static boolean verify(byte[] data, PublicKey publicKey, byte[] signBytes) throws Exception {
-        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
+    private static boolean verify(byte[] data, PublicKey publicKey, byte[] signBytes) throws Exception {
+        final Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
         signature.initVerify(publicKey);
         signature.update(data);
         return signature.verify(signBytes);
@@ -291,8 +296,8 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static byte[] encryptByPublicKey(byte[] data, PublicKey publicKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+    private static byte[] encryptByPublicKey(byte[] data, PublicKey publicKey) throws Exception {
+        final Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedData = null;
         ByteArrayOutputStream out = null;
@@ -301,7 +306,7 @@ public class RSAUtil {
             int offSet = 0;
             byte[] cache;
             int i = 0;
-            int inputLen = data.length;
+            final int inputLen = data.length;
             // 对数据分段加密
             while (inputLen - offSet > 0) {
                 if (inputLen - offSet > MAX_ENCRYPT_BLOCK) {
@@ -332,8 +337,8 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static byte[] encryptByPrivateKey(byte[] data, PrivateKey privateKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+    private static byte[] encryptByPrivateKey(byte[] data, PrivateKey privateKey) throws Exception {
+        final Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, privateKey);
         byte[] encryptedData = null;
         ByteArrayOutputStream out = null;
@@ -342,7 +347,7 @@ public class RSAUtil {
             int offSet = 0;
             byte[] cache;
             int i = 0;
-            int inputLen = data.length;
+            final int inputLen = data.length;
             // 对数据分段加密
             while (inputLen - offSet > 0) {
                 if (inputLen - offSet > MAX_ENCRYPT_BLOCK) {
@@ -374,8 +379,8 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static byte[] decryptByPublicKey(byte[] encryptedData, PublicKey publicKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+    private static byte[] decryptByPublicKey(byte[] encryptedData, PublicKey publicKey) throws Exception {
+        final Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, publicKey);
         byte[] decryptedData = null;
         ByteArrayOutputStream out = null;
@@ -384,7 +389,7 @@ public class RSAUtil {
             int offSet = 0;
             byte[] cache;
             int i = 0;
-            int inputLen = encryptedData.length;
+            final int inputLen = encryptedData.length;
             // 对数据分段解密
             while (inputLen - offSet > 0) {
                 if (inputLen - offSet > MAX_DECRYPT_BLOCK) {
@@ -415,8 +420,8 @@ public class RSAUtil {
      * @return
      * @throws Exception
      */
-    public static byte[] decryptByPrivateKey(byte[] encryptedData, PrivateKey privateKey) throws Exception {
-        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+    private static byte[] decryptByPrivateKey(byte[] encryptedData, PrivateKey privateKey) throws Exception {
+        final Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] decryptedData = null;
         ByteArrayOutputStream out = null;
@@ -425,7 +430,7 @@ public class RSAUtil {
             int offSet = 0;
             byte[] cache;
             int i = 0;
-            int inputLen = encryptedData.length;
+            final int inputLen = encryptedData.length;
             // 对数据分段解密
             while (inputLen - offSet > 0) {
                 if (inputLen - offSet > MAX_DECRYPT_BLOCK) {

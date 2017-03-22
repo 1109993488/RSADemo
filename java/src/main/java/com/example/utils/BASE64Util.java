@@ -1,6 +1,6 @@
-package com.example;
+package com.example.utils;
 
-public final class Base64Util {
+public final class BASE64Util {
   
     private static final int BASELENGTH = 128;  
     private static final int LOOKUPLENGTH = 64;  
@@ -60,10 +60,10 @@ public final class Base64Util {
     }  
   
     /** 
-     * Encodes hex octects into Base64Util
+     * Encodes hex octects into BASE64Util
      * 
      * @param binaryData Array containing binaryData 
-     * @return Encoded Base64Util array
+     * @return Encoded BASE64Util array
      */  
     public static String encode(byte[] binaryData) {  
   
@@ -135,9 +135,9 @@ public final class Base64Util {
     }  
   
     /** 
-     * Decodes Base64Util data into octects
+     * Decodes BASE64Util data into octects
      * 
-     * @param encoded string containing Base64Util data
+     * @param encoded string containing BASE64Util data
      * @return Array containind decoded data. 
      */  
     public static byte[] decode(String encoded) {  
@@ -232,7 +232,7 @@ public final class Base64Util {
     }  
   
     /** 
-     * remove WhiteSpace from MIME containing encoded Base64Util data.
+     * remove WhiteSpace from MIME containing encoded BASE64Util data.
      * 
      * @param data the byte array of base64 data (with WS) 
      * @return the new length 

@@ -1,6 +1,4 @@
-package com.example;
-
-import java.security.SecureRandom;
+package com.example.utils;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -14,8 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class AESUtil {
     private AESUtil() {}
 
-    public static final String SECRETKEYSPEC_ALGORITHM = "AES";
-    public static final String SECURERANDOM_SHA1 = "SHA1PRNG";
+    public static final String AES_ALGORITHM = "AES";
     public static final String CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
     /**
      * 编码
@@ -25,24 +22,14 @@ public class AESUtil {
 
     //************************************提供方便调用的一些方法****************************************
 
-    public static String initKeyToString(String password) {
-        String key = null;
-        try {
-            key = encode(initKey(password));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return key;
-    }
-
     /**
      * Base64编码数据
      *
      * @param binaryData
      * @return
      */
-    public static String encode(byte[] binaryData) {
-        return Base64Util.encode(binaryData);
+    private static String encode(byte[] binaryData) {
+        return BASE64Util.encode(binaryData);
     }
 
     /**
@@ -51,10 +38,24 @@ public class AESUtil {
      * @param encoded (BASE64编码)
      * @return
      */
-    public static byte[] decode(String encoded) {
-        return Base64Util.decode(encoded);
+    private static byte[] decode(String encoded) {
+        return BASE64Util.decode(encoded);
     }
 
+    /**
+     * 生成加密的Key
+     *
+     * @return
+     */
+    public static String initKeyToString() {
+        String key = null;
+        try {
+            key = encode(initKey());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return key;
+    }
 
     /**
      * 加密
@@ -65,10 +66,12 @@ public class AESUtil {
      */
     public static String encrypt(String content, String key) {
         String encrypt = null;
-        final byte[] keyBytes = decode(key);
-        final byte[] encryptBytes = encrypt(content, keyBytes);
-        if (encryptBytes != null) {
+        try {
+            final byte[] keyBytes = decode(key);
+            final byte[] encryptBytes = encrypt(content, keyBytes);
             encrypt = encode(encryptBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return encrypt;
     }
@@ -92,22 +95,19 @@ public class AESUtil {
         }
         return data;
     }
+
     //**************************************提供一些基础操作********************************************
 
     /**
      * 生成加密的Key
      *
-     * @param password
      * @return
      * @throws Exception
      */
-    public static byte[] initKey(String password) throws Exception {
-        SecureRandom secureRandom = SecureRandom.getInstance(SECURERANDOM_SHA1);
-        secureRandom.setSeed(password.getBytes());
-
-        KeyGenerator keyGenerator = KeyGenerator.getInstance(SECRETKEYSPEC_ALGORITHM);
+    private static byte[] initKey() throws Exception {
+        final KeyGenerator keyGenerator = KeyGenerator.getInstance(AES_ALGORITHM);
         keyGenerator.init(128);
-        SecretKey secretKey = keyGenerator.generateKey();
+        final SecretKey secretKey = keyGenerator.generateKey();
         return secretKey.getEncoded();
     }
 
@@ -118,20 +118,14 @@ public class AESUtil {
      * @param keyBytes 加密密码
      * @return
      */
-    public static byte[] encrypt(String content, byte[] keyBytes) {
-        byte[] result = null;
-        try {
-            byte[] byteContent = content.getBytes(CHAR_ENCODING);
+    private static byte[] encrypt(String content, byte[] keyBytes) throws Exception {
+        final byte[] byteContent = content.getBytes(CHAR_ENCODING);
 
-            SecretKeySpec key = new SecretKeySpec(keyBytes, SECRETKEYSPEC_ALGORITHM);
+        final SecretKeySpec key = new SecretKeySpec(keyBytes, AES_ALGORITHM);
 
-            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, key);// 初始化
-            result = cipher.doFinal(byteContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result; // 加密
+        final Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, key);// 初始化
+        return cipher.doFinal(byteContent);
     }
 
     /**
@@ -141,18 +135,12 @@ public class AESUtil {
      * @param keyBytes 解密密钥
      * @return
      */
-    public static byte[] decrypt(byte[] content, byte[] keyBytes) {
-        byte[] result = null;
-        try {
-            SecretKeySpec key = new SecretKeySpec(keyBytes, SECRETKEYSPEC_ALGORITHM);
+    private static byte[] decrypt(byte[] content, byte[] keyBytes) throws Exception {
+        final SecretKeySpec key = new SecretKeySpec(keyBytes, AES_ALGORITHM);
 
-            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, key);// 初始化
-            result = cipher.doFinal(content);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result; // 解密
+        final Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, key);// 初始化
+        return cipher.doFinal(content);
     }
 
 }

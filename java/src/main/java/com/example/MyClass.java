@@ -1,13 +1,18 @@
 package com.example;
 
 
+import com.example.utils.AESUtil;
+import com.example.utils.BASE64Util;
+import com.example.utils.MD5Util;
+import com.example.utils.RSAUtil;
+
 import java.security.KeyPair;
 
 public class MyClass {
 
     public static void main(String[] args) throws Exception {
-//        initKey();
-
+        initKey();
+        print("------------------------------------");
         test1();
         print("------------------------------------");
         test2();
@@ -63,7 +68,7 @@ public class MyClass {
     }
 
     private static void test4() {
-        String key = AESUtil.initKeyToString("pass");
+        String key = AESUtil.initKeyToString();
         print("AES加密密钥为", key);
         String encrypt = AESUtil.encrypt(DATA, key);
         print("AES加密后的数据为", encrypt);
@@ -88,8 +93,8 @@ public class MyClass {
 
     private static void initKey() throws Exception {
         KeyPair keyPair = RSAUtil.initKeyPair();
-        String privateKey = Base64Util.encode(keyPair.getPrivate().getEncoded());
-        String publicKey = Base64Util.encode(keyPair.getPublic().getEncoded());
+        String privateKey = BASE64Util.encode(keyPair.getPrivate().getEncoded());
+        String publicKey = BASE64Util.encode(keyPair.getPublic().getEncoded());
         System.out.println("PrivateKey-> " + privateKey);
         System.out.println("PublicKey-> " + publicKey);
     }
